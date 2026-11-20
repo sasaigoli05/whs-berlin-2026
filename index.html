@@ -1,0 +1,948 @@
+<title>Berlin Notebook</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: one bright column. Centred title, the connection map, then everything
+   else as hairline-separated bands. Theme detail opens in a full-height sheet. */
+:root{
+  --bg:#FFFFFF; --bg-2:#F7F8F9; --bg-3:#F1F2F4;
+  --ink:#15171B; --ink-2:#575D65; --ink-3:#8A9099;
+  --line:#E6E8EB; --line-2:#CFD3D9; --edge:#C3C8D1;
+  --accent:#1F4FB6; --accent-2:#163B88; --accent-bg:#EEF2FB;
+  --flag:#8A5A00; --flag-bg:#FBF2DF;
+  color-scheme:light;
+  --ff:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --gut:max(20px, env(safe-area-inset-left, 0px));
+  --gutr:max(20px, env(safe-area-inset-right, 0px));
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ff);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:60}
+body.locked{overflow:hidden}
+h1,h2,h3,h4{margin:0;font-weight:500;line-height:1.14;letter-spacing:-0.02em;text-wrap:balance}
+p{margin:0}
+a{color:inherit}
+button{font:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.wrap{max-width:1080px;margin:0 auto;padding-left:var(--gut);padding-right:var(--gutr)}
+.narrow{max-width:760px;margin:0 auto;padding-left:var(--gut);padding-right:var(--gutr)}
+.lab{font-size:.68rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.band{border-top:1px solid var(--line)}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topin{display:flex;align-items:center;gap:.8rem;min-height:50px;flex-wrap:wrap;padding-block:.35rem}
+.mark{font-size:.8rem;font-weight:600;letter-spacing:-0.01em;white-space:nowrap}
+.mark span{color:var(--ink-3);font-weight:400}
+nav.main{margin-left:auto;display:flex;gap:.1rem;align-items:center;flex-wrap:wrap}
+nav.main a{font-size:.82rem;color:var(--ink-2);text-decoration:none;padding:.3rem .55rem;border-radius:4px}
+nav.main a:hover{color:var(--ink);background:var(--bg-3)}
+/* opening */
+.open{padding-block:clamp(2.6rem,7vw,5rem) clamp(1rem,2vw,1.6rem);text-align:center}
+.open .lab{margin-bottom:1.4rem}
+h1{font-size:clamp(2.9rem,8vw,5.4rem);letter-spacing:-0.042em;line-height:.96}
+.sub{margin:1.3rem auto 0;max-width:46ch;font-size:clamp(1rem,1.9vw,1.18rem);color:var(--ink-2);line-height:1.55}
+.facts{display:flex;justify-content:center;gap:0;flex-wrap:wrap;margin-top:1.8rem}
+.facts span{font-size:.78rem;color:var(--ink-3);padding:0 .9rem}
+.facts span+span{border-left:1px solid var(--line)}
+
+/* map */
+.mapsec{padding-block:clamp(.5rem,2vw,1.4rem) clamp(2rem,4vw,3rem)}
+#mapwrap{position:relative}
+#map{display:block;width:100%;height:auto;margin:0 auto;touch-action:manipulation}
+#map .edge{fill:none;stroke:var(--edge);stroke-width:1;transition:stroke .16s,stroke-width .16s,opacity .16s}
+#map .edge.on{stroke:var(--accent);stroke-width:1.6;opacity:1}
+#map .edge.dim{opacity:.3}
+#map .node{cursor:pointer}
+#map .ses circle{fill:var(--bg);stroke:var(--line-2);stroke-width:1.3;transition:fill .16s,stroke .16s}
+#map .ses text{fill:var(--ink-2);transition:fill .16s}
+#map .nar rect{fill:var(--bg);stroke:var(--line-2);stroke-width:1.3;transition:fill .16s,stroke .16s}
+#map .nar text{fill:var(--ink);font-weight:500;pointer-events:none}
+#map .nar text.num{fill:var(--ink-3);font-weight:500}
+#map .ses.on circle{fill:var(--accent);stroke:var(--accent)}
+#map .ses.on text{fill:var(--accent-2);font-weight:500}
+#map .nar.on rect{fill:var(--accent);stroke:var(--accent)}
+#map .nar.on text,#map .nar.on text.num{fill:#fff}
+#map .node.dim{opacity:.3}
+#map .ctr{font-size:10px;letter-spacing:2.2px;fill:var(--ink-3)}
+@media(prefers-reduced-motion:no-preference){
+  #map .edge{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw .95s ease forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+}
+.readout{max-width:640px;margin:1.4rem auto 0;text-align:center;min-height:5rem;display:grid;gap:.4rem}
+.readout .rk{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:500}
+.readout .rt{font-size:1.2rem;font-weight:500;letter-spacing:-0.02em}
+.readout .rd{font-size:.92rem;color:var(--ink-2)}
+.readout .rh{font-size:.78rem;color:var(--ink-3)}
+@media(max-width:719px){#map .ctr{display:none}}
+
+/* theme grid */
+.themes{padding-block:clamp(2.4rem,5vw,3.6rem)}
+.thead{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:1.6rem}
+.thead h2{font-size:clamp(1.5rem,3vw,2.05rem)}
+.thead p{font-size:.9rem;color:var(--ink-2);max-width:40ch}
+.grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+@media(min-width:620px){.grid{grid-template-columns:1fr 1fr}}
+@media(min-width:980px){.grid{grid-template-columns:1fr 1fr 1fr}}
+.tcard{background:var(--bg);padding:1.4rem 1.3rem 1.2rem;display:flex;flex-direction:column;gap:.7rem;min-width:0;transition:background .15s}
+.tcard:hover{background:var(--bg-2)}
+.tcard .tt{display:block;text-align:left;background:none;border:0;padding:0;cursor:pointer;color:inherit;display:grid;gap:.5rem}
+.tcard .tn{font-size:.68rem;letter-spacing:.14em;color:var(--ink-3);font-weight:500}
+.tcard h3{font-size:1.22rem;letter-spacing:-0.022em;max-width:20ch}
+.tcard .td{font-size:.92rem;color:var(--ink-2);line-height:1.55}
+.tcard .chips{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:auto;padding-top:.5rem}
+.chip{font-size:.72rem;color:var(--ink-2);background:var(--bg-3);border:0;border-radius:999px;padding:.22rem .6rem;cursor:pointer;white-space:nowrap}
+.chip:hover{background:var(--accent-bg);color:var(--accent)}
+.tcard .more{font-size:.8rem;color:var(--accent);font-weight:500}
+
+/* sheet */
+.sheet{position:fixed;inset:0;z-index:70;background:var(--bg);display:flex;flex-direction:column}
+.sheet[hidden]{display:none!important}
+.sheetbar{position:sticky;top:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:2}
+.sheetbarin{display:flex;align-items:center;gap:1rem;min-height:52px;padding-top:env(safe-area-inset-top,0px)}
+.sheetbarin .st{font-size:.82rem;color:var(--ink-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sheetbarin .st b{color:var(--ink);font-weight:500}
+.xbtn{margin-left:auto;background:none;border:1px solid var(--line-2);color:var(--ink-2);border-radius:999px;padding:.3rem .75rem;font-size:.78rem;cursor:pointer}
+.xbtn:hover{border-color:var(--accent);color:var(--accent)}
+.sheetbody{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;padding-bottom:max(2rem,env(safe-area-inset-bottom,0px))}
+.sheetbody .inner{padding-block:clamp(2rem,5vw,3.4rem)}
+.sheetbody h2{font-size:clamp(1.9rem,4.4vw,3rem);letter-spacing:-0.035em;max-width:17ch}
+.sheetbody .lede{margin-top:1rem;font-size:clamp(1.05rem,2vw,1.22rem);color:var(--ink-2);line-height:1.55;max-width:54ch}
+.beat{display:grid;gap:.8rem;padding-block:1.7rem;border-top:1px solid var(--line);margin-top:1.7rem}
+.beat>.lab{color:var(--accent)}
+.prose{display:grid;gap:.85rem;font-size:1.02rem;line-height:1.68;color:var(--ink);max-width:66ch}
+.prose em{font-style:italic}
+.dots{list-style:none;margin:0;padding:0;display:grid;gap:.75rem;max-width:66ch}
+.dots li{display:grid;grid-template-columns:auto 1fr;gap:.85rem;align-items:baseline;font-size:.97rem;color:var(--ink-2);line-height:1.6}
+.dots .src{font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;font-weight:500;color:var(--accent);white-space:nowrap;padding-top:.22rem}
+.dots b{color:var(--ink);font-weight:500}
+.raw{background:var(--bg-2);border:1px solid var(--line);border-radius:6px;padding:1.05rem 1.15rem;max-width:62ch}
+.raw .rh2{display:flex;justify-content:space-between;gap:1rem;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:.7rem;font-weight:500}
+.raw ul{list-style:none;margin:0;padding:0;display:grid;gap:.45rem;font-size:.9rem;color:var(--ink-2);line-height:1.5}
+.raw li::before{content:"\2014\00a0";color:var(--ink-3)}
+.pull{margin:0;font-size:clamp(1.25rem,2.6vw,1.6rem);line-height:1.38;letter-spacing:-0.022em;max-width:38ch;color:var(--ink)}
+.pull cite{display:block;font-style:normal;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:.8rem;font-weight:500}
+.openq{background:var(--accent-bg);border-radius:6px;padding:1.15rem 1.25rem;max-width:58ch;display:grid;gap:.5rem}
+.openq .q{font-size:1.1rem;line-height:1.45;color:var(--accent-2);font-weight:500;letter-spacing:-0.015em}
+.openq .p{font-size:.92rem;color:var(--ink-2)}
+.sheetnav{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;padding-top:1.6rem;margin-top:1.7rem;border-top:1px solid var(--line)}
+.sheetnav button{background:none;border:1px solid var(--line-2);border-radius:999px;padding:.4rem .9rem;font-size:.85rem;color:var(--ink-2);cursor:pointer}
+.sheetnav button:hover{border-color:var(--accent);color:var(--accent)}
+.sheetnav .sp{margin-left:auto;font-size:.78rem;color:var(--ink-3)}
+
+/* archive */
+.arch{padding-block:clamp(2.4rem,5vw,3.8rem)}
+.archhead{display:grid;gap:.6rem;margin-bottom:1.2rem}
+.archhead h2{font-size:clamp(1.5rem,3vw,2.05rem)}
+.archhead p{color:var(--ink-2);max-width:56ch;font-size:.93rem}
+.controls{display:flex;gap:.9rem;flex-wrap:wrap;align-items:center;padding-block:.9rem;border-block:1px solid var(--line);margin-bottom:1.1rem}
+.filters{display:flex;gap:.3rem;flex-wrap:wrap}
+.filters button{font-size:.78rem;border:1px solid var(--line-2);background:none;color:var(--ink-2);border-radius:999px;padding:.3rem .75rem;cursor:pointer}
+.filters button:hover{border-color:var(--accent);color:var(--accent)}
+.filters button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.search{margin-left:auto;display:flex;align-items:center;gap:.5rem;min-width:0}
+.search input{font:inherit;font-size:.88rem;background:var(--bg);border:1px solid var(--line-2);color:var(--ink);border-radius:999px;padding:.38rem .85rem;width:min(16rem,46vw)}
+.count{font-size:.76rem;color:var(--ink-3);white-space:nowrap}
+.cards{display:grid;gap:.8rem}
+@media(min-width:780px){.cards{grid-template-columns:1fr 1fr}}
+details.card{border:1px solid var(--line);border-radius:6px;min-width:0;align-self:start;background:var(--bg)}
+details.card[open]{border-color:var(--line-2);background:var(--bg-2)}
+@media(min-width:780px){details.card[open]{grid-column:1 / -1}}
+details.card summary{list-style:none;cursor:pointer;padding:1.05rem 1.15rem;display:grid;gap:.55rem}
+details.card summary::-webkit-details-marker{display:none}
+.ctop{display:flex;gap:.7rem;align-items:baseline;justify-content:space-between;flex-wrap:wrap}
+.cnum{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.cst{font-size:.66rem;letter-spacing:.06em;border:1px solid var(--line-2);border-radius:999px;padding:.1rem .55rem;color:var(--ink-3);white-space:nowrap}
+.cst.full{color:var(--accent);border-color:var(--accent)}
+.cst.thin{color:var(--flag);border-color:var(--flag)}
+details.card h3{font-size:1.08rem;letter-spacing:-0.02em;max-width:36ch}
+.cmeta{font-size:.82rem;color:var(--ink-3);line-height:1.5}
+.ctags{display:flex;gap:.3rem;flex-wrap:wrap}
+.ctags span{font-size:.7rem;color:var(--accent);background:var(--accent-bg);border-radius:999px;padding:.12rem .55rem}
+.cbody{padding:1rem 1.15rem 1.2rem;display:grid;gap:1.15rem;border-top:1px solid var(--line)}
+.cbody h4{font-size:.68rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.cbody .desc{display:grid;gap:.6rem;font-size:.97rem;line-height:1.62;color:var(--ink-2);max-width:68ch}
+.spk{list-style:none;margin:0;padding:0;display:grid;gap:.3rem;font-size:.88rem}
+.spk li{display:grid;grid-template-columns:minmax(0,auto) 1fr;gap:.6rem;align-items:baseline}
+.spk b{font-weight:500}
+.spk i{font-style:normal;color:var(--ink-3);font-size:.8rem}
+.notes{list-style:none;margin:0;padding:0;display:grid;gap:.5rem;font-size:.93rem;color:var(--ink-2);max-width:68ch;line-height:1.6}
+.notes li{display:grid;grid-template-columns:auto 1fr;gap:.6rem}
+.notes li::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--line-2);margin-top:.62rem}
+.csec{display:grid;gap:.55rem}
+.lnk{display:flex;flex-wrap:wrap;gap:.35rem}
+.lnk button{font-size:.78rem;border:1px solid var(--line-2);background:none;color:var(--ink-2);border-radius:999px;padding:.26rem .7rem;cursor:pointer}
+.lnk button:hover{border-color:var(--accent);color:var(--accent)}
+
+/* voices / carry / status */
+.voices{padding-block:clamp(2.4rem,5vw,3.6rem)}
+.vgrid{display:grid;gap:1.6rem;margin-top:1.6rem}
+@media(min-width:800px){.vgrid{grid-template-columns:repeat(3,1fr);gap:1.8rem}}
+.v{display:grid;gap:.55rem;min-width:0;border-top:1px solid var(--ink);padding-top:.9rem}
+.v .vn{font-size:1.15rem;font-weight:600;letter-spacing:-0.02em}
+.v .vr{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.v .vq{font-size:1rem;line-height:1.55;color:var(--ink)}
+.v .vs{font-size:.88rem;color:var(--ink-2)}
+.changed{display:grid;gap:1rem;margin-top:2rem;padding-top:1.6rem;border-top:1px solid var(--line)}
+.ci{display:grid;gap:.25rem;font-size:.95rem;color:var(--ink-2);max-width:62ch}
+.ci b{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:500}
+.carry{padding-block:clamp(2.6rem,5vw,4rem);background:var(--bg-2)}
+.carry h2{font-size:clamp(1.8rem,4vw,2.6rem);max-width:16ch}
+.carry .lede{margin-top:.9rem;color:var(--ink-2);font-size:1.05rem;line-height:1.55;max-width:54ch}
+.qlist{display:grid;margin-top:1.6rem;counter-reset:q;padding:0}
+.qlist li{list-style:none;counter-increment:q;display:grid;grid-template-columns:2.4rem 1fr;gap:.9rem;padding-block:1rem;border-top:1px solid var(--line);align-items:baseline}
+.qlist li::before{content:counter(q,decimal-leading-zero);font-size:.72rem;color:var(--ink-3);font-weight:500}
+.qt{font-size:clamp(1.02rem,2vw,1.22rem);line-height:1.45;letter-spacing:-0.015em}
+footer{border-top:1px solid var(--line);background:var(--bg-2)}
+.footin{padding-block:2rem;display:grid;gap:.6rem;font-size:.84rem;color:var(--ink-3)}
+.footin p{max-width:72ch}
+.footin b{color:var(--ink-2);font-weight:500}
+
+@media(max-width:560px){
+  .dots li{grid-template-columns:1fr;gap:.2rem}
+  .dots .src{padding-top:0}
+  .spk li{grid-template-columns:1fr;gap:.05rem}
+}
+</style>
+
+<header class="top">
+  <div class="wrap topin">
+    <div class="mark">Berlin Notebook <span>/ WHS 2026</span></div>
+    <nav class="main" aria-label="Sections">
+      <a href="#themes">Themes</a>
+      <a href="#archive">Sessions</a>
+      <a href="#voices">Voices</a>
+      <a href="#carry">Carry forward</a>
+    </nav>
+  </div>
+</header>
+
+<section class="wrap open">
+  <div class="lab">World Health Summit &middot; Berlin &middot; 12&ndash;14 October 2026</div>
+  <h1>Berlin Notebook</h1>
+  <p class="sub">Thirteen sessions, three delegates, and the five arguments we found underneath them. Start anywhere on the map.</p>
+  <div class="facts"><span>5 themes</span><span>13 sessions</span><span>3 sets of notes</span></div>
+</section>
+
+<section class="wrap mapsec">
+  <div id="mapwrap"><svg id="map" role="img" aria-label="Diagram connecting five themes to the thirteen summit sessions that informed them"></svg></div>
+  <div class="readout" id="readout" aria-live="polite"></div>
+</section>
+
+<section class="band" id="themes">
+  <div class="wrap themes">
+    <div class="thead">
+      <div><div class="lab">The five arguments</div><h2 style="margin-top:.5rem">What we kept coming back to</h2></div>
+      <p>Open a card to read the theme in full. The chips jump straight to a session.</p>
+    </div>
+    <div class="grid" id="tgrid"></div>
+  </div>
+</section>
+
+<section class="band" id="archive">
+  <div class="wrap arch">
+    <div class="archhead">
+      <div class="lab">The record</div>
+      <h2>Session archive</h2>
+      <p>Every session we sat in, with the official description where we have it, the speakers as we recorded them, and the notes as they were taken.</p>
+    </div>
+    <div class="controls">
+      <div class="filters" id="filters" role="group" aria-label="Filter sessions by theme"></div>
+      <div class="search">
+        <label class="lab" for="q">Find</label>
+        <input id="q" type="search" placeholder="speaker, country, topic&hellip;" autocomplete="off">
+        <span class="count" id="count"></span>
+      </div>
+    </div>
+    <div class="cards" id="cards"></div>
+  </div>
+</section>
+
+<section class="band" id="voices">
+  <div class="wrap voices">
+    <div class="lab">Three delegates</div>
+    <h2 style="font-size:clamp(1.5rem,3vw,2.05rem);margin-top:.5rem">We did not take the same summit home</h2>
+    <p style="color:var(--ink-2);max-width:58ch;margin-top:.7rem;font-size:.95rem">We attended overlapping sessions and left with different arguments. Rather than blend them into one voice, the reflections stay separate &mdash; including where they disagree about what the evidence supports.</p>
+    <div class="vgrid" id="vgrid"></div>
+    <div class="changed">
+      <div class="lab" style="color:var(--accent)">What changed our minds</div>
+      <div class="ci"><b>On evidence</b><span>We arrived assuming the problem with traditional medicine was a shortage of evidence. Amie Steel reframed it as a question about who gets funded to produce evidence in the first place &mdash; and if nobody researches a practice, calling it unevidenced is a circular argument rather than a finding.</span></div>
+      <div class="ci"><b>On scale</b><span>We expected the biggest sessions to be about the biggest systems. Instead the pandemic financing panel ended on three small questions: are health workers paid, is anything reaching the last mile, are local teams in the room.</span></div>
+      <div class="ci"><b>On technology</b><span>We came in treating AI as a workforce solution. The workforce session turned it into a question about who captures the time it saves &mdash; the clinician, the patient, or the schedule.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band carry" id="carry">
+  <div class="narrow">
+    <div class="lab">Closing</div>
+    <h2 style="margin-top:.6rem">What we carry forward</h2>
+    <p class="lede">We did not resolve these in Berlin and we are not going to resolve them here. They are the questions that kept reappearing in sessions that had nothing else in common.</p>
+    <ul class="qlist">
+      <li><span class="qt">If $700 million is disbursed and $60 million is visible to the government receiving it, what exactly has been measured when a pledge is reported as met?</span></li>
+      <li><span class="qt">Who decides what gets researched &mdash; and can a practice be called unevidenced by a system that never funded the study?</span></li>
+      <li><span class="qt">When technology saves a clinician an hour, who gets that hour?</span></li>
+      <li><span class="qt">Is it better to launch an imperfect programme now, or wait for the missing resources while people keep getting sick?</span></li>
+      <li><span class="qt">What would have to change for a health argument to be heard by a Ministry of Finance rather than only by other health people?</span></li>
+      <li><span class="qt">Community-led monitoring was named as essential in four separate sessions. What is actually stopping it from being funded as infrastructure?</span></li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="narrow footin">
+    <p><b>Sources.</b> Session notes and eight written themes from the summit, plus a twelve-page handwritten notebook. Speakers, figures and session titles are as we recorded them in the room.</p>
+    <p>Built from the group&rsquo;s own notes &middot; November 2026</p>
+  </div>
+</footer>
+
+<script>
+const F = (t) => t;
+
+const NARRATIVES = [
+ {
+  id:"n1", num:"01", rail:"Financing & accountability", map:"Money",
+  title:"Where does the money actually go?",
+  lede:"Berlin is very good at announcing resources. Across four separate sessions, speakers kept returning to the same unglamorous follow-up: between the podium and the clinic, something happens to the money, and almost nobody can say what.",
+  question:`<p>A pledge is an event. It has a stage, a number and a press release. Delivery has none of those things, which is part of why it goes unmeasured.</p><p>The question we kept writing in the margins was not <em>is there enough money</em>. It was: <strong>what is actually being counted when a commitment is reported as met?</strong> Because the figures stopped agreeing with each other the moment anyone looked closely.</p>`,
+  heard:[
+   {src:"Pandemic financing", t:`Jean Kaseya described ${F("$700 million")} reported as disbursed against an outbreak response, of which the DRC government could account for roughly ${F("$60 million")}. His question to the room was not rhetorical: <b>where is the money going?</b>`},
+   {src:"Pandemic financing", t:`Africa CDC's own commitment was recorded as ${F("$120 million across 26 countries")}, with the Uganda response described as endogenous — financed and run from inside the country rather than waiting on a disbursement.`},
+   {src:"Prepared forward", t:`Jane Halton put it as a sequence of three questions, and they are the most useful thing we brought home: <b>Are health workers paid and protected? Is anything reaching the last mile? Are endogenous teams at the table?</b>`},
+   {src:"Pandemic financing", t:`${F("Punya Basu")} of the World Bank's Pandemic Fund named the pattern plainly — <b>panic, then neglect</b> — and the cycle resets with each outbreak.`},
+   {src:"Women's health capital", t:`The financing conversation was more sophisticated and ran into the same wall: blended finance, modular investment, risk-sharing with UNFPA — and then Maura Mora of the European Investment Bank on <b>translating pilots into population-wide impact</b>, which is where most of them stop.`},
+   {src:"Health sovereignty", t:`A former health minister reframed the whole debate in one line: <b>country ownership without integrity is not sovereignty</b>. Losses to corruption, she argued, exceed the cost of universal health coverage.`},
+   {src:"Health sovereignty", t:`A survey of ${F("1,500 medical students")} was cited: ${F("10%")} found corruption acceptable and ${F("50%")} did not recognise it as corruption at all. ${F("90%")} could not say where their funding came from.`},
+   {src:"NCDs & diabetes", t:`The costing inverts what most people assume: <b>more money is spent on delivery than on the product</b>. Metformin is close to free; the referral pathway, the diagnosis, the test strips and the follow-up are where the money and the failure both live.`}
+  ],
+  raw:{h:"From the notebook — pandemic preparedness", p:"Page 4",
+   items:["$700 million disbursed, but DRC got only $60 million?","Holding donors accountable — where is the money going?","Fall into a cycle of neglect following panic.","Pledges not = disbursement rapidly — in crisis settings funding vulnerable; difficult to reach last mile.","Give ownership at the country level."]},
+  pullq:"People hear that billions have been pledged, but that promise means little if local services do not improve.",
+  pullc:"Written theme 1 — financing must reach the people delivering care",
+  stood:`<p>What made this more than an accounting complaint was how directly it ran into trust. Javid Abdelmoneim kept bringing a session about global architecture back to health workers who were still not being paid. That is the version of the financing debate a community actually experiences: not an architecture, but a salary that did not arrive.</p><p>The accountability conversation also changed shape depending on who was asking. Donors wanted to know whether funds were well spent. Kalipso Chalkidou drew the sharper distinction — <strong>health financing versus financing health</strong> — and raised the awkward position of institutions that fund programmes and also evaluate them.</p>`,
+  dots:`<p>Three sessions with nothing in common structurally made the same argument. The pandemic panel measured it in disbursements. The women's health panel measured it in pilots that never scaled. The diabetes panel measured it in people who were prescribed insulin and still did not have it, because ${F("24 countries")} have no insulin supply at all outside a donation programme.</p><p>Across all three, the proposed fix was the same and it was not more money. It was <strong>defining the objective in human outcomes</strong> — lives saved, infections averted, people retained in care — rather than in money mobilised. One speaker noted that this also happens to raise funds better.</p>`,
+  openq:"What would an honest ledger look like — one that follows a pledge from the podium to a paid health worker, and publishes where it stops?",
+  openp:"The instruments to track this exist. The Pandemic Fund can disaggregate. What was missing in every session was an obligation on anyone to report the gap rather than the headline.",
+  sessions:["s-pandemic1","s-pandemic2","s-women","s-sovereignty","s-ncd"]
+ },
+ {
+  id:"n2", num:"02", rail:"Trust & representation", map:"The table",
+  title:"Who gets to say what counts as knowledge?",
+  lede:"A fishbowl on traditional medicine and a panel on drug policy should have had nothing to say to each other. Both spent their time on the same question: whose account of a problem is treated as evidence, and whose is treated as anecdote.",
+  question:`<p>Every session agreed that care should be built around the people receiving it. Almost none of them agreed on what that means when those people's knowledge contradicts the system's.</p><p>The sharp version, and the one that unsettled us most: <strong>if nobody funds the research, is "there is no evidence" a finding or a circular argument?</strong></p>`,
+  heard:[
+   {src:"Traditional medicine", t:`Vivian Camacho described Bolivia's integration of traditional medicine as something that had to be demanded. Indigenous communities already held the practice; what was missing was representation. Her warning was against the compliment — <b>see Indigenous communities as innovative, not as a token</b>.`},
+   {src:"Traditional medicine", t:`Amie Steel's double standard landed hardest: we would not perform heart surgery without consulting a cardiologist, yet traditional medicine is used at enormous scale without consulting the people who hold its knowledge. She called for scholarship and fellowship pathways so the research can exist at all.`},
+   {src:"Traditional medicine", t:`Mustapha Ferjani held the other line, and it matters: <b>tradition alone is not evidence</b>, and nobody should delay a diagnosis or abandon effective treatment.`},
+   {src:"Traditional medicine", t:`Shyama Kuruvilla reframed the category — traditional medicine is largely preventive and public-facing, not an alternative clinic. A system that routes everything through hospitals cannot hold. She also flagged the sustainability problem nobody raises: roughly ${F("a quarter")} of the plants used are endangered.`},
+   {src:"Drug policy", t:`Maurice Cabanis explained why people with substance use disorder do not present for addiction: they arrive in emergency departments for the comorbidities, because a system organised around abstinence and shame offers them nothing. <b>Why would they come in for treatment?</b>`},
+   {src:"Drug policy", t:`He also turned it on the profession — doctors stigmatise too. And on method: official evidence moves far too slowly to track a drug market that changes weekly, so <b>patient lived experience is not a nice addition, it is the only real-time data source</b>. Drug dealers included.`},
+   {src:"Health sovereignty", t:`The financing session arrived at the same place by a different road: build community stake into central decision-making, fund social accountability, and stop assessing programmes on output and process when the question is outcome and impact.`},
+   {src:"NCDs & diabetes", t:`Community-led monitoring was named as critical for chronic care — continuity, stigma, discrimination and the fragmented referral pathways that no central dataset sees.`}
+  ],
+  raw:{h:"From the notes — traditional medicine fishbowl", p:"Pages 5–6",
+   items:["If no one researches it, is it fair to say “there’s no evidence”? NO!","People love using TradM without acknowledging the people who actually created it.","We can’t have a healthcare system that relies solely on hospitals.","Need to translate medicine into something people can understand.","TradM is a framework for how to keep medicine people-centred with the emergence of AI."]},
+  pullq:"The individuals a system serves should be the voices shaping it. Before putting any new policy in place, we need to ask: does this actually reflect the needs of this community?",
+  pullc:"Written theme 6 — systems need to reflect the people they serve",
+  stood:`<p>Bolivia was the example that stayed with us, because it is not a story about consultation. Indigenous leaders did not wait to be invited; they organised until traditional medicine was taken seriously, and the system changed afterwards. Representation was taken, not granted.</p><p>What makes the argument harder than it first looks is that Ferjani is also right. Respect for a practice is not a safety claim. The honest position is the uncomfortable middle: <strong>integration with accountability</strong> — real research pathways, defined roles, clear referral to professional care — rather than either dismissal or uncritical embrace.</p>`,
+  dots:`<p>The drug policy session and the traditional medicine session made the same structural complaint from opposite ends. In one, a community's knowledge is excluded because it was never studied. In the other, a population's experience is excluded because it is considered unreliable. Both exclusions produce the same result: a system confidently designed around people it has not heard from.</p><p>And both offered the same repair, in almost identical language — bring people with lived experience into the room, not as testimony at the end but as a data source from the start.</p>`,
+  openq:"Who decides what gets researched? Until that question has an answer, “no evidence” describes a funding pattern as much as it describes a practice.",
+  openp:"The practical follow-up is narrower and more answerable: what would a funded research pathway for traditional practice actually look like, and who would run the ethics of it?",
+  sessions:["s-tradmed","s-drug","s-sovereignty","s-ncd","s-science"]
+ },
+ {
+  id:"n3", num:"03", rail:"Innovation & implementation", map:"Innovation",
+  title:"Innovation for whom, exactly?",
+  lede:"Drones, digital twins, omics data lakes, GLP-1s, population-scale HPV screening. The technology on display in Berlin was genuinely impressive. The sessions that impressed us were the ones that asked what happens to it on arrival.",
+  question:`<p>There is a version of the innovation conversation that ends at the invention. The sessions that were worth attending did not end there.</p><p>They asked: <strong>what does this technology do to the workload, the market and the referral pathway it lands in?</strong> Because every one of those is already under strain.</p>`,
+  heard:[
+   {src:"Workforce & AI", t:`${F("Thomas Thesen")} and ${F("Tomas Zapata")} framed AI through the people expected to use it, and the question that follows is the whole argument: when technology saves a clinician an hour, does that hour go to the patient, to going home on time, or to seeing more people?`},
+   {src:"Women's health capital", t:`The sharpest line of the session was about a drone: <b>blood delivery by drone does not replace the health worker</b>. Ghana's maternal deaths were recorded as ${F("965 in facilities")} — people who reached care. Getting someone to a facility is not the same as that facility being equipped.`},
+   {src:"Women's health capital", t:`Where technology was described well, it was described as a chain rather than a device: population-level HPV DNA testing, plus tracked screening, plus treatment, plus a referral and digital follow-up system <b>so that people are not lost</b>.`},
+   {src:"Women's health capital", t:`On AI specifically — design it with women, build the data infrastructure, governance and policy underneath it first. Responsible foundations before deployment.`},
+   {src:"NCDs & diabetes", t:`The market detail was the most concrete economics we heard all week. A glucometer is around ${F("$10")}; strips are ${F("$1–2 each")} and recur, out of pocket, forever — so people are quietly dissuaded from self-monitoring. Around ${F("60%")} of people with diabetes are undiagnosed. Metformin is cheap and old; GLP-1s are priced for high-income markets at roughly ${F("five times")} the level, with ${F("no generic manufacturer in Africa")}.`},
+   {src:"NCDs & diabetes", t:`The phrase used was <b>market dysfunction</b> — not scarcity. And a question that outlives the panel: even when a drug reaches the market, is the person taking the right dose? Which sends you back to diagnosis.`},
+   {src:"Prepared forward", t:`The structural reasons innovation does not arrive were listed outright: opportunity cost against NCDs, limited purchasing power in LMICs, high liability, monopsony buyers driving prices down, and the double externality of disseminated technology creating production competition.`},
+   {src:"Capital markets", t:`${F("Eicke Latz")} on omics acceleration and hospital data lakes, ${F("Sangita Reddy")} of Apollo on keeping population at the centre. The striking claim: when people are given their own molecular data, behaviour changes.`},
+   {src:"Traditional medicine", t:`And from an unexpected direction — traditional medicine proposed as <b>a framework for keeping medicine people-centred as AI arrives</b>.`}
+  ],
+  raw:{h:"From the notebook — NCDs, obesity, diabetes", p:"Pages 9–11",
+   items:["Glucometer ($10), strips (1–2$ each). Adds up out of pocket.","Estimated 60% of people with diabetes with no diagnosis.","“Market dysfunction” for inequity.","More money spent on delivery than product.","Define objective in terms of human outcomes — # lives saved, # infections.","Fragmented referral pathways, insufficient info, supply chain."]},
+  pullq:"More technology does not automatically equate to more support.",
+  pullc:"Written theme 3 — AI should make healthcare work sustainable",
+  stood:`<p>The workforce session reframed AI from a capability question into a labour question, and that is the version worth carrying. Recruiting people into health work is only half the problem; the job has to be one they can keep doing. If the time a tool saves is immediately reabsorbed as throughput, the tool has not helped the workforce — it has raised the baseline.</p><p>The same test applies to everything else on display. A diagnostic that is not connected to a referral pathway produces an informed person with nowhere to go. An insulin analogue with better control is irrelevant in a country with no insulin supply. <strong>Judge each of these by what it contributes on arrival, not by what it is capable of.</strong></p>`,
+  dots:`<p>Traditional medicine and AI came up in the notes as the same kind of proposal from opposite ends of the credibility spectrum: both offered as ways to extend capacity where there are not enough clinicians, and both carrying the same risk of becoming a substitute for professional care rather than a route into it.</p><p>The test that applies to both is identical. Does it add real capacity? Does it preserve quality? Does it keep a clear path to a clinician? Different risks, one standard.</p>`,
+  openq:"If the honest measure of an innovation is what it changes at the point of care, why is almost nothing presented that way?",
+  openp:"Several speakers noted that human-outcome framing also raises funds more effectively than capability framing. If that is true, the incentive problem is smaller than it looks.",
+  sessions:["s-workforce","s-women","s-ncd","s-capital","s-tradmed"]
+ },
+ {
+  id:"n4", num:"04", rail:"Resilience & preparedness", map:"Resilience",
+  title:"Systems that bend without breaking",
+  lede:"Ukraine, the next pandemic and the climate were discussed in three different rooms with three different vocabularies. The underlying question was the same: what keeps working when the conditions a system was designed for stop applying?",
+  question:`<p>Preparedness is usually presented as a stockpile. Almost everything we heard described it instead as a set of relationships and routines that have to exist beforehand, because they cannot be assembled during the emergency.</p><p>Which leads to a harder question than how to prepare: <strong>how do you act well with resources that will never be adequate?</strong></p>`,
+  heard:[
+   {src:"Ukraine", t:`Four years of attacks on facilities, a displaced workforce and interrupted supply chains, and the core functions of the system are still running. What kept them running was unglamorous: supporting health workers, holding electricity, holding the medicine supply.`},
+   {src:"Pandemic financing", t:`${F("Victor Dzau")} opened with the premise everything else rests on — <b>not if, but when</b> — and listed what preparedness requires: surveillance, vaccines, equity, financing and institutional trust. Trust is the one that cannot be procured.`},
+   {src:"Pandemic financing", t:`The live example was ${F("Bundibugyo virus disease")}, a filovirus outbreak, with contact tracing and financing both failing at once.`},
+   {src:"Prepared forward", t:`The GPMB's own monitoring was brutally honest: of roughly ${F("30 recommendations")}, ${F("2")} were achieved and about ${F("65%")} were advancing. The named obstacle was not knowledge but <b>integrating evidence into political action</b>.`},
+   {src:"Prepared forward", t:`Their proposed fix is a federated model for pandemic risk monitoring that treats risk as three separate things — risk drivers, likely impact, and preparedness — with quantitative indicators that identify <b>where the breakdown is and what the pathway to action is</b>.`},
+   {src:"One Health", t:`Biodiversity degradation and human encroachment drive spillover. The economic argument was made in four words: <b>prevention costs less than response</b>.`},
+   {src:"Lower-carbon systems", t:`Brazil under El Niño was the case study: drought and fires in the north, floods in the south, with malnutrition and respiratory illness following. The response was institutional — El Niño protocols, health action plans, and a change to the legal framework so the health ministry has standing to act.`},
+   {src:"Lower-carbon systems", t:`${F("Air pollution kills roughly one COVID pandemic per year")} — the line that reframed the whole session. Then the practical agenda: decarbonisation, sustainable materials in medical and pharmaceutical supply, and credible ways of measuring sustainability at all.`},
+   {src:"Lower-carbon systems", t:`And the objection that deserved more time than it got: <b>how does any of this apply to a clinic already operating under severe constraint?</b>`}
+  ],
+  raw:{h:"From the notebook — climate and resilience", p:"Pages 6–7",
+   items:["Brazil — El Niño — N. has drought, fires, S. has floods.","Creating environment as a KPI in major health systems.","More prevention in the healthcare system.","Change legal framework to transfer funds.","Innovation not enough in control — think about investment, organise, communicate."]},
+  pullq:"Ukraine proves that perfect never comes, and care has to happen anyway.",
+  pullc:"Written theme 8 — perfectionism versus realism",
+  stood:`<p>The perfectionism argument is the most practically useful thing in our notes. Addiction care is permanently underfunded. Pandemic money arrives late or not at all. Programmes rarely launch with everything they need. So the real decision is whether to start an imperfect programme now or wait while people stay sick.</p><p>Ukraine answers it by force. Javid Abdelmoneim's description of the system — not perfect, still doing what it can — is not a lowered standard. <strong>A system does not have to be finished to make a difference. It has to be willing to adapt, learn and hold itself accountable as it grows.</strong></p>`,
+  dots:`<p>Resilience in these sessions was never a property of a plan. It was a property of ordinary reliability: whether a clinician can be reached, whether medication is in stock, whether the electricity holds, whether people believe care will still be there next month.</p><p>That is also why the climate sessions and the pandemic sessions converged on prevention and on legal and financial plumbing rather than on technology. The GPMB's finding — evidence exists, political action does not follow — is the same finding the climate panel reached by a different route.</p>`,
+  openq:"If the gap is between evidence and political action rather than between evidence and knowledge, what is the health sector actually building when it produces more evidence?",
+  openp:"Making the environment a KPI inside health systems was the one proposal that turned a value into something an institution is measured on. It deserves following up.",
+  sessions:["s-ukraine","s-pandemic1","s-onehealth","s-climate","s-pandemic2"]
+ },
+ {
+  id:"n5", num:"05", rail:"Politics & public health", map:"Politics",
+  title:"Public health isn't always pretty",
+  lede:"Drug policy was discussed at the World Health Summit for the first time this year. That fact is the argument: the hardest problems are the ones with the least flattering headlines, and they wait the longest.",
+  question:`<p>Evidence does not convert into policy by itself. Harm reduction has had the evidence for decades. The obstacle has never been a study.</p><p>So: <strong>what actually has to change for an uncomfortable health problem to get funded?</strong></p>`,
+  heard:[
+   {src:"Drug policy", t:`Jane Mounteney described a supply changing faster than any monitoring system was built for: roughly <b>one new substance per week</b>, with ${F("nitazenes")} ahead of fentanyl on the list of concern, and a ban on one compound answered by a replacement almost immediately.`},
+   {src:"Drug policy", t:`A correction worth keeping: the population of people with addiction is not growing in step with the supply. The supply shifts people between drugs. What is available diverges from what is preferred — which is a social determinants question, not a pharmacology one.`},
+   {src:"Drug policy", t:`Maurice Cabanis on the structural mismatch: the system is not built to treat addiction and psychiatric illness at once, and it is still organised around heroin. Deaths are under-reported. By the time a change in symptoms at death reveals a new drug on the market, <b>it is already too late</b>.`},
+   {src:"Drug policy", t:`On what does not work: incarceration does not reduce use, and more authoritarian states have worse outcomes, not better. ${F("Afghanistan")} after the war was the example — soldiers with no work and no social structure, and a sharp rise in use.`},
+   {src:"Drug policy", t:`On what does: bring treatment to people instead of requiring them to seek it repeatedly; fund community clinics for early detection; fund families; adapt policy to the individual; decriminalise. ${F("Germany")} was described as moving toward treatment rather than criminalisation.`},
+   {src:"Drug policy", t:`And the comparison that should be uncomfortable: the world built an entire pandemic fund, and funds HIV at scale. Substance use causes comparable mortality with a fraction of the attention.`},
+   {src:"Science under attack", t:`${F("Jeremy Farrar")} argued that institutions earn trust when people can see improvements in their own lives — particularly people who have not shared in the benefits of research so far. ${F("Victor Dzau")} made the same point about transparency.`},
+   {src:"Health sovereignty", t:`The most quietly damning observation of the week: <b>we are preaching to the choir</b>. The health sector is convinced. The narrative has to be transformed to be heard by ministries of finance and defence, which is where the decision sits.`}
+  ],
+  raw:{h:"From the notes — drug policy session",p:"Pages 1–5",
+   items:["1st time ever talking about drug policy at WHS!","Addicts do not resonate with the current healthcare system (that supports abstinence and shames addicts), so why would they come in for treatment?","Gov’t/large corporation evidence works too slowly — doesn’t track the speedy drug market in real time.","Incarceration does not decrease use!!! Ever.","Highlight the lived experience of those who struggle — bring them into the room."]},
+  pullq:"Public health problems are often framed as a national failure, so no country wants to take the blame. That framing does real damage.",
+  pullc:"Written theme 7 — public health isn’t always pretty",
+  stood:`<p>One of us put the question to the panel directly: the evidence for harm reduction is overwhelming, and the social stigma still blocks the policy — so how do you shift the norm rather than the data?</p><p>The answers were concrete. Put people with lived experience in the room and in the community conversation. Make substance use a named global priority, because without that designation there is no funding line. Educate clinicians and legislators separately, because they need different arguments. Decriminalise.</p><p>None of that is a research agenda. All of it is political work, which is precisely why the health sector keeps handing it to someone else.</p>`,
+  dots:`<p>Silence is not neutral. Where public health does not speak about a problem, fear and misinformation fill the space — a point made about social media in the drug policy session and about trust in science in another. Treating accountability as an embarrassment rather than a strength is what produces the delay.</p><p>The climate session reached the same conclusion with a sharper edge: nothing changed in thirty years until a teenager made it politically expensive to do nothing.</p>`,
+  openq:"What would it take for a health argument to be built for a Ministry of Finance from the start, rather than translated for one afterwards?",
+  openp:"The route suggested across sessions was the same: define success in human outcomes, publish the gap, and make the people affected visible in the room where the number is decided.",
+  sessions:["s-drug","s-science","s-climate","s-sovereignty","s-ukraine"]
+ }
+];
+
+const SESSIONS = [
+ {id:"s-drug", n:"01", short:"Drug policy", primary:"n5", status:"full",
+  title:"Global Trends in Drug Policy and Their Impact on National Health Systems",
+  note:"The first drug policy session ever held at the World Health Summit.",
+  desc:["Illicit drug markets are expanding, diversifying and becoming more potent. Digital access, cross-border trafficking and rapidly changing consumption patterns are increasing pressure on public health, social services and national health systems. Synthetic opioids have shown how quickly a drug crisis can overwhelm emergency care and addiction treatment. At the same time, cocaine, crack, ketamine and polysubstance use are becoming more widespread in many countries.",
+   "The session examined how health systems can prepare for faster, more complex and increasingly international drug threats, and how prevention, treatment, harm reduction, enforcement and research can be better connected."],
+  speakers:[["Jane Mounteney","EUDA"],["Helen Clark","Former Prime Minister of New Zealand"],["Dr Maurice Cabanis","Addiction and mental health medicine"],["Petra Khoury","IFRC"],["Hendrik Streeck","Commissioner for Addiction and Drug Policy, Federal Ministry of Health, Germany"]],
+  notes:["Supply changing at high speed and with little predictability — roughly one new molecule or isomer per week, and far more diversity within known drugs.",
+   "Drugs of concern, in the order given: nitazenes, orphines, fentanyl. Heroin use is falling, displaced by cheaper and more potent opioids. Ban one version and a replacement appears.",
+   "Are more people becoming addicted to opioids? No. Supply changes move people between drugs rather than creating a new population. What is available diverges from what is preferred — a social determinants question.",
+   "Crack and cocaine do not behave as one group; the populations are different.",
+   "Cabanis: people with SUD present for emergencies and comorbidities, not for addiction. A system built on abstinence and shame offers them nothing.",
+   "Official evidence moves too slowly to track a market that changes weekly. Patient lived experience is the real-time data source. By the time symptoms at death reveal a new compound, it is too late.",
+   "Youth: overall addiction falling, vaping rising. Social media and appearance pressure discourage treatment; undiagnosed psychiatric illness compounds it. Khoury: social media also accelerates misinformation.",
+   "Medications for opioid use disorder work as protection rather than post-mortem treatment; weak coverage in Estonia produced bad outcomes.",
+   "The system is not built to treat addiction and psychiatric illness together, and remains organised around heroin.",
+   "Barriers named: patients must continuously seek out care (bring care to them instead); hospitals detox people fast and painfully, with little accessible follow-up; psychiatric and addiction care are badly underfunded and poorly recognised by insurers.",
+   "No equivalent of MOUD exists for crack. Cabanis: ask patients what works and adjust to them.",
+   "Khoury on the Zurich model — no single cause of widespread addiction; income differences change treatment efficacy sharply; punishment is not the answer, and more authoritarian states have worse outcomes. Afghanistan after the war saw a sharp rise as soldiers lost work and social structure.",
+   "Fund family support and community clinics for early detection.",
+   "Doctors stigmatise too. Are they taking patients seriously and integrating their views into treatment?",
+   "Low-income countries need investment in treatment programmes. A pandemic fund exists; HIV is funded at scale; substance use causes comparable mortality with a fraction of the attention.",
+   "Trust in institutions first, information second. Invest in and learn from countries that already hold that trust. Even drug dealers count as lived experience.",
+   "Mounteney is building a drug warning system — open question how the warning reaches the street. Fiji: sharply increased HIV, 42% from needle sharing, meth as drug of choice, and a trafficking hub.",
+   "Germany treats SUD as a medical problem and is moving toward treatment over criminalisation. Globally the response remains security-led. Incarceration does not decrease use.",
+   "Delegate question from the floor: the evidence for harm reduction is strong, but social stigma still blocks policy change — how do you shift the norm? Answers: lived experience in the room, make SUD a global priority so funding exists, adaptable policy fitted to the individual, educate clinicians and legislators, decriminalise."],
+  tags:["n5","n2"]},
+
+ {id:"s-tradmed", n:"02", short:"Traditional medicine", primary:"n2", status:"full",
+  title:"Building Resilient Health Systems: Unlocking the Public Health Potential of Traditional Medicine",
+  note:"An interactive fishbowl discussion.",
+  desc:["Health systems worldwide face growing pressures from ageing populations, chronic disease, workforce shortages, climate change and declining public trust. Building resilient health systems requires not only strong clinical services but also effective public health functions, trusted community engagement and evidence-informed policy.",
+   "Traditional medicine has long played a role in health promotion, disease prevention and primary health care for billions of people. As countries implement the WHO Traditional Medicine Strategy 2025–2034, attention is shifting towards how it can contribute to stronger, more resilient health systems."],
+  speakers:[["Hiba Boujnah","CCCTM, WHO collaborator"],["Amie Steel","Naturopathic physician, ARCCIM researcher"],["Vivian Camacho","Indigenous leader, Bolivia"],["Sohel Saikat","Primary health care adviser, Essential Public Health Functions"],["Shyama Kuruvilla","WHO Traditional Medicine"],["Mustapha Ferjani","Minister of Health, Tunisia"]],
+  notes:["Kuruvilla: traditional medicine is used far more for prevention than for treatment, and there is vastly more use than there is research.",
+   "A pointed aside in the notes: systems that profit from treatment have little incentive to prevent illness.",
+   "Sustainability is a real constraint — around a quarter of the plants used in traditional medicine are endangered.",
+   "A health system that routes everything through hospitals cannot hold. Other forms of care have to be recognised.",
+   "Traditional practitioners are treated as providers of individual therapy, but much of what they do is public health: prevention, and trusted community-level communication.",
+   "Camacho: Bolivia integrated traditional medicine because Indigenous leaders demanded to be seen and heard. The knowledge was always there; representation was not.",
+   "Stop tokenising Indigenous communities and start treating them as innovative. Encourage leaders to organise and inform their own people. People use traditional medicine without acknowledging who developed it.",
+   "Medicine has to be translated into something people can actually understand.",
+   "Steel: more research is needed, but implementation matters as much. The double standard — nobody performs heart surgery without a cardiologist, yet traditional medicine is used at scale without consulting its practitioners.",
+   "Clear research pathways are missing: scholarships and fellowships for traditional medicine, and learning opportunities for policymakers.",
+   "If nobody researches a practice, is it fair to call it unevidenced? There is evidence where it has been looked for — grey matter growth from meditation was the example given.",
+   "Traditional medicine offered as a framework for keeping medicine people-centred as AI arrives.",
+   "Law matters: education about traditional medicine can be mandated.",
+   "Ferjani held the counter-line: tradition alone is not evidence, and nobody should delay diagnosis or abandon effective treatment."],
+  tags:["n2","n3"]},
+
+ {id:"s-ukraine", n:"03", short:"Ukraine", primary:"n4", status:"thin",
+  title:"Resilience in Healthcare: Experiences from Ukraine and Other Crisis Contexts",
+  note:"Our notes from this session are thin, so it is filled out from the written themes.",
+  desc:["Climate change, armed conflict and scarce resources mean current and future crises call for resilient health care systems. But how is that resilience built, in people and in systems?",
+   "Maintaining a functioning health system in a country at war poses a specific challenge: attacks on health care facilities, a displaced workforce and interrupted supply chains are daily occurrences. Over four years the Ukrainian health system has proven extremely resilient and adaptable. Key functions remain in place and the provision of medical care has not stopped."],
+  speakers:[["Katri Bertram","Director, Doctors of the World"],["Florika Fink-Hooijer","Director, Health Emergencies"],["Chikwe Ihekweazu","Executive Director, WHO Health Emergencies"],["Georg Kippels","Parliamentary State Secretary, Federal Ministry of Health, Germany"],["Viktor Liashko","Minister of Health, Ukraine"],["Carsten Linnemann","Federal Ministry of Health, Germany"]],
+  notes:["The note taken in the room was blunt: Ukraine is in such a crisis that the numbers are very bad.",
+   "From the written themes: keeping care available depended on supporting health workers while holding electricity and the medicine supply — the ordinary infrastructure, not the emergency plan.",
+   "Javid Abdelmoneim of Médecins Sans Frontières was recorded describing Ukrainian health care as imperfect and still doing the best it can — the basis for the perfectionism-versus-realism argument."],
+  tags:["n4","n5"]},
+
+ {id:"s-pandemic1", n:"04", short:"Pandemic financing", primary:"n1", status:"full",
+  title:"Pandemic Preparedness at a Crossroads: Financing and Governing Global Health Security",
+  desc:["Pandemic preparedness stands at a crossroads. As outbreaks become more frequent and intersect with climate change, conflict and displacement, strengthening global health security has never been more urgent. Building resilience depends on effective governance, sustainable financing and equitable power-sharing across the global health ecosystem.",
+   "Structural inequalities, fragmented surveillance, weak governance and unequal access to diagnostics, treatments, vaccines, technologies and intellectual property continue to amplify pandemic risks. Chronic underfunding of pandemic prevention, preparedness and response, reactive financing and donor dependence undermine resilience, while delayed data sharing and political barriers to transparency weaken coordinated action and trust.",
+   "The WHO Pandemic Agreement and its forthcoming annex on pathogen access and benefit sharing offer an opportunity to strengthen cooperation, improve equitable access and reinforce accountability."],
+  speakers:[["Dr Victor J. Dzau","Global Preparedness Monitoring Board; Chancellor Emeritus, Duke"],["Jean Kaseya","Africa CDC"],["Georg Kippels","Federal Ministry of Health, Germany"],["Frederik Kristensen",""],["Punya Basu","World Bank / Pandemic Fund"],["Javid Abdelmoneim","Médecins Sans Frontières"]],
+  notes:["Dzau: not if another pandemic happens, but when. What is needed: surveillance, vaccines, equity, financing, institutional trust.",
+   "The live outbreak discussed was Bundibugyo virus disease, with contact tracing and financing failing simultaneously.",
+   "Issues named for the session: vaccine nationalism, supply chains, financing, trust and misinformation, leadership, procurement, sovereignty.",
+   "Kaseya travels to each country and briefs African leaders on an outbreak first. Africa CDC recorded a $120 million commitment across 26 countries. The Uganda response was endogenous.",
+   "$700 million reported as disbursed; the DRC government could account for roughly $60 million. His question: where is the money going?",
+   "Quick response is decisive. Money is said to be committed to pandemic response — is there movement behind the figure?",
+   "Expand the definition of health care: it is an industrial and commercial question as much as a clinical or individual one.",
+   "Basu on the pandemic fund: the cycle is panic followed by neglect.",
+   "Catalytic financing through multilateral development banks; the EIB was described as mobilising four times its own contribution from international partners. Health framed as global infrastructure.",
+   "Africa owning its own data, manufacturing and R&D. Give ownership at country level.",
+   "Preparedness and response are a continuum — detect, contain, manage. The pandemic fund is trying to scale to all LMICs quickly.",
+   "Kristensen's focus areas: a concrete pathway from international to regional level, faster data collection and analysis, south–south collaboration, and concrete support for vaccine manufacturing in LMICs.",
+   "When industry is not at the table it cannot be part of the solution."],
+  tags:["n1","n4","n5"]},
+
+ {id:"s-pandemic2", n:"05", short:"Prepared forward", primary:"n3", status:"full",
+  title:"Pandemic Preparedness, Panel 2 — “Prepared Forward”",
+ 
+  desc:["A second preparedness panel focused on research and development, market failure and the monitoring architecture behind global pandemic risk."],
+  speakers:[["Jane Halton","CEPI"],["Sharon Lewin","Peter Doherty Institute for Infection and Immunity"],["Teresa Graham",""]],
+  notes:["The 100 day mission as a push to deliver tangible innovation, alongside building endogenous capacity.",
+   "R&D across vaccines, therapeutics and diagnostics. Adaptive technology exists; the market is not attractive to industry.",
+   "Develop therapeutics at speed — small molecules take too long; RNA and host-targeted approaches are the alternative.",
+   "Transfer technology where there is capacity to receive it.",
+   "Pledges do not equal rapid disbursement. In crisis settings funding is vulnerable and the last mile is hard to reach.",
+   "Halton's three questions: are health workers paid and protected, is it reaching the last mile, are endogenous teams at the table.",
+   "Build for interoperability with the last mile.",
+   "Five market failures named: opportunity cost against NCDs; limited LMIC purchasing power; high liability; monopsony, with GAVI and COVAX as public buyers driving prices down; and double externality, where dissemination creates production competition.",
+   "GPMB report: of around 30 recommendations, 2 achieved and roughly 65% advancing. The obstacle is political support and structures, not evidence.",
+   "Integrating evidence into political action: assign responsibility, allocate resources, surface gaps, and make the evidence available to political leaders. The UN General Assembly makes monitoring useful.",
+   "Preparedness capacity does not currently connect to de-risking. Treat risk as three things — risk drivers, impact of a health emergency, and preparedness — with systematic, quantitative measures that strengthen accountability and show where the breakdown is.",
+   "A federated model for pandemic risk monitoring: science, data, institutional and national, fully integrated."],
+  tags:["n1","n3","n4"]},
+
+ {id:"s-women", n:"06", short:"Capital for women's health", primary:"n1", status:"full",
+  title:"The Moment Is Now: Capital for Women’s Health",
+  note:"WomenX Collective Hub — funding collective.",
+  desc:["A session on attracting sovereign-scale investment into women's health, and on reframing that investment as economic development and workforce policy rather than as social spending.",
+   "The organising question: how do we unlock new pools of capital and build partnerships that make women's health a national economic priority?"],
+  speakers:[["Diene Keita","Executive Director, UNFPA"],["Kwabena Mintah Akandoh","Ministry of Health, Ghana"],["Birgit Pickel","Director General, German Federal Ministry for Economic Cooperation and Development"],["Maura Mora","Vice-President, European Investment Bank"],["Dr Zubeda Rahman","First Lady of Bangladesh"],["Miles Kemplay","Philanthropy"],["Daniela Foster","Senior Vice-President, market access and sustainability"],["Michael O’Bermeter","Grassroots implementation"]],
+  notes:["Margin note from the room: every two minutes a woman dies from pregnancy complications, and seven in ten of those women will be African.",
+   "Ghana recorded 965 maternal deaths in facilities — people who reached care. Reaching a facility is not the same as that facility being equipped.",
+   "Innovation has to strengthen the whole spectrum of care. Blood delivery by drone does not replace the health worker.",
+   "Pickel: only about 6% of private health capital in donations reaches women. Germany is investing in catalytic health financing in Bangladesh — workforce, service quality, prevention, early detection, digital systems.",
+   "Mora: women's health is treated as a social issue, but it is capacity and economic health — resilient families, girls in school, women in the workforce.",
+   "The hard part is translating pilots into population-wide impact. Development assistance is necessary but private investment is needed to attract larger pools. Modular investment, blended finance, long-term financing, risk sharing, technical expertise with organisations like UNFPA.",
+   "Governments must own the agenda.",
+   "Data-driven care needs infrastructure, data systems, policy and governance underneath it. Design AI with women — responsible foundations first.",
+   "Bangladesh increased its health allocation as a share of GDP; investment in health creates jobs and human capital. Recruitment of 100,000 community health workers and 20,000 midwives.",
+   "Population-level HPV DNA testing with tracked screening, treatment and follow-up, and a referral and digital tracking system so people are not lost. The same model for breast cancer.",
+   "Maternal malnutrition and adolescent anaemia treated as interconnected investments.",
+   "Prevention is the key to resilience and sustainability. Multiple micronutrient supplementation cited with a Copenhagen Consensus return of $37 per $1 invested.",
+   "Kemplay: de-risk health systems strengthening investments; the organisations that succeed are connected across public, civil society and private.",
+   "O’Bermeter on grassroots implementation: investment is good, but is it delivering what it promised? Technology sits on shelves. Patients and caregivers at the table from the beginning.",
+   "Disaggregate coverage data and surface the differences between countries. Everyone has a commitment to change; what is missing is a commitment to changing how the thing fundamentally works."],
+  tags:["n1","n3"]},
+
+ {id:"s-onehealth", n:"07", short:"One Health", primary:"n4", status:"partial",
+  title:"Preventing Pandemics: One Health",
+  desc:["Prevention at the interface between biodiversity, animal health and human health."],
+  speakers:[["Helen Clark",""]],
+  notes:["Biodiversity degradation and human interaction with it drive disease emergence.",
+   "The item was on the UN General Assembly agenda and the concern raised was keeping it there.",
+   "One Health prevention framed economically: wellness costs less.",
+   "Political declarations noted for 2026."],
+  tags:["n4"]},
+
+ {id:"s-climate", n:"08", short:"Lower-carbon systems", primary:"n4", status:"full",
+  title:"Lower-Carbon Health Systems and Climate Resilience",
+  desc:["Two linked conversations: decarbonising health systems themselves, and preparing health systems for climate-driven health emergencies over the next five years."],
+  speakers:[["Elaine Ruth Fletcher","Editor-in-chief, Health Policy Watch"],["Dr Amy Booth","Brighton and Sussex Medical School; Green Healthcare Hub"]],
+  notes:["Brazil under El Niño: drought and fires in the north, floods in the south, with malnutrition and respiratory illness following.",
+   "Response built institutionally — a developed El Niño protocol, health action plans, and a change to the legal framework so the health ministry has standing to act. Vaccine progress undone by the event itself.",
+   "Three strands: decarbonisation; sustainable alternative materials in medical and pharmaceutical supply; and credible ways of measuring sustainability at all. How is any of it surfaced to government, and what does accountability look like?",
+   "Make the environment a KPI in major health systems. Shift the system toward prevention. Monitor the legal status of climate change and the evidence behind it.",
+   "Funds are blocked at multilateral banks; changing legal frameworks to allow transfer and emergency declaration was named as the practical obstacle.",
+   "The objection raised from the floor: how does sustainability apply to a clinic already operating under severe constraint?",
+   "Air pollution was described as killing the equivalent of one COVID pandemic per year.",
+   "Fix sustainability at the foundations — involve engineers and architects; UN net-zero building standards exist.",
+   "Booth researches sustainable pharmaceutical systems and directs a green healthcare hub.",
+   "Innovation alone is not control: investment, organisation and communication matter as much. Align financial mechanisms with national green priorities.",
+   "On politics: nothing changed in thirty years until Greta Thunberg. Philosophers have interpreted the world; the point is to change it.",
+   "Reading recommended in the room: Kim Stanley Robinson, The Ministry for the Future — the opening chapter set in India."],
+  tags:["n4","n5"]},
+
+ {id:"s-sovereignty", n:"09", short:"Health sovereignty", primary:"n1", status:"full",
+  title:"Health Sovereignty, Financing and Accountability",
+ 
+  desc:["A session on domestic financing, corruption, regional pooling and what country ownership actually requires."],
+  speakers:[["Kalipso Chalkidou",""],["Rosemary","WAC Kenya"]],
+  notes:["Pakistan figures recorded: 2.5% population growth, the largest in the region; roughly 1% of public spending on health against much larger shares for debt servicing and defence. Political instability with two changes of government in one to two years.",
+   "Fragmented financing and social protection pools; donor transition with no large portfolio to transition into. What is needed: alignment with the country, public expenditure management, transparency, accountability, political investment.",
+   "Margin note: the Global South has to be in the discussion.",
+   "Country ownership without integrity is not sovereignty. Corruption is a major issue — inflated prices for HIV medicines, inflated estimates of need, and a system that barely noticed.",
+   "Losses to corruption exceed the cost of universal health coverage and the development budget. Stop the leak; it shapes what gets funded. Short political cycles, and political actors are not neutral.",
+   "A survey of 1,500 medical students: 10% found corruption acceptable, 50% did not recognise it as corruption, 90% were unsure where their funding came from.",
+   "Budgeting at ministry level for humanitarian contexts in fragile and conflict settings. Regional solidarity as a counterpoint to sovereignty.",
+   "Public accountability structures: donor funds and public funds behave differently — how should that work?",
+   "We are convinced; we have to transform the narrative to be heard by ministries of finance and defence. Preaching to the choir is the failure mode.",
+   "Chalkidou on health financing versus financing health — and the conflict of an institution that is both funder and evaluator.",
+   "Regionalisation dilutes the financial pool but can demonstrate solidarity. Ethiopia and Tanzania have set up their own funds, though they are decreasing. Putting money there builds accountability and makes outcomes measurable.",
+   "Who, why and how — institutionalise participation in decision-making. Avoid blanket approaches: which communities, which geographies, which diseases are being left behind?",
+   "Build participation into governance. Social accountability through community-led feedback. Build community stake into central decision-making. Involve youth and women.",
+   "Assessment currently measures output and process rather than outcome and impact.",
+   "Rosemary: community-led data and leadership, with an aside that Coca-Cola's distribution reach is the benchmark nobody in health has matched."],
+  tags:["n1","n2","n5"]},
+
+ {id:"s-ncd", n:"10", short:"NCDs & diabetes", primary:"n2", status:"full",
+  title:"Rethinking Obesity, NCDs and Diabetes within Universal Health Coverage",
+  desc:["Access, markets and continuity of care for chronic disease — and why availability of a medicine is not the same as a person receiving it."],
+  speakers:[["Kate Bain","CEO, NCD Alliance"],["Peter Sands","Executive Director, The Global Fund"],["","CEO, Access to Medicine Foundation"],["","PATH"],["","Novo Nordisk"]],
+  notes:["NCDs account for the overwhelming majority of deaths and health care costs; multimorbidity is common, which argues for prevention and an integrated strategy rather than disease-by-disease silos.",
+   "Roughly 60% of people worldwide have access to insulin; about half that in Africa.",
+   "Insulin: twelve modern analogues with easy once-daily administration and good control, against a cheap vial-and-syringe step-down that is not optimal. Three main producers globally — diversification of the market was the ask.",
+   "Type 2 diabetes target: 80% diagnosed and controlled. A glucometer costs around $10; strips are $1–2 each and recur out of pocket, which quietly dissuades self-monitoring. Around 60% of people with diabetes are undiagnosed.",
+   "Metformin is cheap, old and available but often needs additions. GLP-1s are expensive and priced for high-income markets at roughly five times the level, with no generic manufacturer in Africa.",
+   "The phrase used was market dysfunction rather than scarcity. WHO's role framed as mapping the market.",
+   "Insulin access is very limited across a large share of countries, and 24 countries have no insulin supply at all outside a donation programme.",
+   "Novo Nordisk's childhood diabetes programme was cited as looking good but losing continuity when participants age out.",
+   "Define the objective in human outcomes — lives saved, infections averted — not average integration. This also raises funds better.",
+   "More money is spent on delivery than on the product. Market shaping is fine but the bottlenecks are deep in the chain. What is the model after donor financing?",
+   "Community-led monitoring is critical for chronic care: lived experience, and the real problems of discrimination and stigma.",
+   "Fragmented referral pathways, insufficient information and supply chain failures produce continuity-of-care problems, not just treatment problems.",
+   "Even when drugs reach the market, is the person taking the right dose? That sends you back to diagnosis.",
+   "Humanitarian settings: blind management without test strips. Care has to be adaptable and continuous.",
+   "Indonesia cited for broad early screening. Country-led sustainable financing, with affordability, equity and system readiness as the criteria.",
+   "Accommodating everything gets nowhere; creating new silos is the opposite failure. Fragile systems with very few suppliers cannot be donor-driven — government involvement is required."],
+  tags:["n2","n1","n3"]},
+
+ {id:"s-capital", n:"11", short:"Capital markets", primary:"n3", status:"partial",
+  title:"The Future of Capital Markets and Global Health Technology",
+  desc:["Prevention, precision health, digital twins and automated analysis — and what capital expects from them."],
+  speakers:[["Eicke Latz","Entrepreneur; rheumatology and immunology research"],["Sangita Reddy","Managing Director, Apollo Hospitals"]],
+  notes:["Automated health through analysis: transactional data and sample collection, centralised AI models.",
+   "Latz on accelerating omics studies and building data lakes for hospital systems, and on the molecular underpinning of disease.",
+   "The claim worth testing: when people are given their own personal data, behaviour changes.",
+   "Reddy on keeping the population at the centre of the model."],
+  tags:["n3"]},
+
+ {id:"s-workforce", n:"12", short:"Workforce & AI", primary:"n3", status:"thin",
+  title:"Healthcare Workforce and Artificial Intelligence",
+  note:"Written up in the reflections rather than noted live.",
+  desc:["A session on what AI does to the working conditions of the people expected to use it."],
+  speakers:[["Thomas Thesen",""],["Tomas Zapata",""]],
+  notes:["Both speakers raised protecting workers' wellbeing and making care more human as the test for AI in the workforce.",
+   "The question carried out of the session: what happens to the time technology saves? Does it become time with a patient, time to finish work, or capacity to see more people?",
+   "Recruitment into the health workforce is only half the problem — the job has to be sustainable once people are in it.",
+   "AI has clear potential for repetitive tasks and access to information. Its effect on workload, clinical judgement and patient care has to be evaluated rather than assumed."],
+  tags:["n3"]},
+
+ {id:"s-science", n:"13", short:"Science under attack", primary:"n5", status:"thin",
+  title:"Science Under Attack",
+  note:"Drawn from the written themes.",
+  desc:["Trust in science, transparency and the political conditions in which research institutions operate."],
+  speakers:[["Jeremy Farrar",""],["Dr Victor J. Dzau",""]],
+  notes:["Farrar: institutions build trust when people can see improvements in their own lives — especially people who have not shared equally in the benefits of research.",
+   "Dzau: trust in science has to be earned through transparency and tangible effort — investing in community clinics, letting people with lived experience shape the message, and treating accountability as a strength rather than an embarrassment.",
+   "Silence leaves room for fear and misinformation, which spreads fast on social media.",
+   "Public health problems framed as national failures make accountability costly, which delays funding and response."],
+  tags:["n5","n2"]}
+];
+
+const VOICES = [
+ {n:"Leah", r:"Session notes · written themes 1–8", q:"What struck me was how directly financing affects trust. People hear that billions have been pledged, but that promise means little if local services do not improve.",
+  s:"Took the detailed session notes for drug policy, traditional medicine, Ukraine and pandemic preparedness, and wrote the eight themes that most of this site is built on. Put the harm reduction question to the drug policy panel from the floor."},
+ {n:"Abby", r:"Written themes 1–5", q:"Bringing people into the workforce is only part of the challenge. The job itself has to be one they can sustain.",
+  s:"Connected the workforce and AI session to her summer work on health care recruitment and retention in Bentonville, and pushed the group's thinking on what technology does to the people expected to use it."},
+ {n:"Suhan", r:"12-page notebook · transcribed 11 Oct 2026", q:"Investment is good, but is it delivering what it promised?",
+  s:"Covered the sessions nobody else sat in — women's health capital, One Health, climate, health sovereignty, NCDs and capital markets — in a handwritten notebook that supplies most of the financing and market detail on this site."}
+];
+
+const MAPLAB={"s-women":"Women's health","s-climate":"Lower-carbon care","s-pandemic1":"Pandemic financing","s-sovereignty":"Health sovereignty","s-tradmed":"Traditional medicine"};
+const lab=s=>MAPLAB[s.id]||s.short;
+const byId={}; SESSIONS.forEach(s=>byId[s.id]=s);
+const narById={}; NARRATIVES.forEach(n=>narById[n.id]=n);
+const esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+/* ---------- theme cards ---------- */
+document.getElementById("tgrid").innerHTML=NARRATIVES.map(n=>`
+ <article class="tcard">
+   <button class="tt" type="button" data-nar="${n.id}">
+     <span class="tn">${n.num} &mdash; ${n.rail}</span>
+     <h3>${n.title}</h3>
+     <span class="td">${n.lede.split(". ").slice(0,2).join(". ")}${n.lede.split(". ").length>2?".":""}</span>
+     <span class="more">Read the theme &rarr;</span>
+   </button>
+   <div class="chips">${n.sessions.map(id=>`<button class="chip" type="button" data-ses="${id}">${byId[id].short}</button>`).join("")}</div>
+ </article>`).join("");
+
+/* ---------- theme sheet ---------- */
+const sheet=document.createElement("div");
+sheet.className="sheet"; sheet.hidden=true;
+sheet.setAttribute("role","dialog"); sheet.setAttribute("aria-modal","true"); sheet.setAttribute("aria-label","Theme");
+sheet.innerHTML=`<div class="sheetbar"><div class="wrap sheetbarin">
+   <span class="st" id="sheettitle"></span>
+   <button class="xbtn" type="button" id="sheetclose">Close &times;</button></div></div>
+ <div class="sheetbody" id="sheetbody"><div class="wrap inner" id="sheetinner"></div></div>`;
+document.body.appendChild(sheet);
+const sheetBody=sheet.querySelector("#sheetbody"), sheetInner=sheet.querySelector("#sheetinner");
+let lastFocus=null, curTheme=null;
+
+function themeHTML(n){
+  const i=NARRATIVES.indexOf(n), prev=NARRATIVES[(i-1+NARRATIVES.length)%NARRATIVES.length], next=NARRATIVES[(i+1)%NARRATIVES.length];
+  return `
+  <div class="lab">${n.num} &mdash; ${n.rail}</div>
+  <h2 style="margin-top:.7rem">${n.title}</h2>
+  <p class="lede">${n.lede}</p>
+
+  <div class="beat"><div class="lab">The question</div><div class="prose">${n.question}</div></div>
+
+  <div class="beat"><div class="lab">What we heard</div>
+    <ul class="dots">${n.heard.map(h=>`<li><span class="src">${h.src}</span><span>${h.t}</span></li>`).join("")}</ul>
+    <div class="raw" style="margin-top:.6rem"><div class="rh2"><span>${n.raw.h}</span><span>${n.raw.p}</span></div>
+      <ul>${n.raw.items.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
+  </div>
+
+  <div class="beat"><div class="lab">What stood out</div>
+    <blockquote class="pull">&ldquo;${n.pullq}&rdquo;<cite>${n.pullc}</cite></blockquote>
+    <div class="prose">${n.stood}</div>
+  </div>
+
+  <div class="beat"><div class="lab">Connecting the dots</div><div class="prose">${n.dots}</div></div>
+
+  <div class="beat"><div class="lab">What we&rsquo;re still thinking about</div>
+    <div class="openq"><div class="q">${n.openq}</div><div class="p">${n.openp}</div></div>
+  </div>
+
+  <div class="beat"><div class="lab">Sessions behind this theme</div>
+    <div class="lnk">${n.sessions.map(id=>`<button type="button" data-ses="${id}">${byId[id].short}</button>`).join("")}</div>
+  </div>
+
+  <div class="sheetnav">
+    <button type="button" data-nar="${prev.id}">&larr; ${prev.map}</button>
+    <button type="button" data-nar="${next.id}">${next.map} &rarr;</button>
+    <span class="sp">Theme ${n.num} of 05</span>
+  </div>`;
+}
+function openTheme(id){
+  const n=narById[id]; if(!n) return;
+  if(!curTheme){ lastFocus=document.activeElement; document.body.classList.add("locked"); }
+  curTheme=id;
+  sheetInner.innerHTML=themeHTML(n);
+  sheet.querySelector("#sheettitle").innerHTML=`<b>${n.num}</b> &nbsp;${n.title}`;
+  sheet.hidden=false; sheetBody.scrollTop=0;
+  sheet.querySelector("#sheetclose").focus();
+}
+function closeTheme(){
+  if(!curTheme) return;
+  curTheme=null; sheet.hidden=true; document.body.classList.remove("locked");
+  if(lastFocus&&lastFocus.focus)lastFocus.focus();
+}
+sheet.querySelector("#sheetclose").addEventListener("click",closeTheme);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&curTheme) closeTheme(); });
+
+/* ---------- archive ---------- */
+let filter="all", query="";
+const STLAB={full:["Full notes","full"],partial:["Partial",""],thin:["Reflections only","thin"]};
+function cardHTML(s){
+  const st=STLAB[s.status];
+  return `<details class="card" id="${s.id}">
+    <summary>
+      <div class="ctop"><span class="cnum">Session ${s.n}</span><span class="cst ${st[1]}">${st[0]}</span></div>
+      <h3>${s.title}</h3>
+      <div class="cmeta">${s.speakers.filter(x=>x[0]).slice(0,3).map(x=>x[0]).join(" &middot; ")}${s.speakers.filter(x=>x[0]).length>3?" &middot; +"+(s.speakers.filter(x=>x[0]).length-3):""}</div>
+      <div class="ctags">${s.tags.map(t=>`<span>${narById[t].map}</span>`).join("")}</div>
+    </summary>
+    <div class="cbody">
+      ${s.note?`<div class="cmeta" style="color:var(--ink-2)">${s.note}</div>`:""}
+      <div class="csec"><h4>Description</h4><div class="desc">${s.desc.map(p=>`<p>${p}</p>`).join("")}</div></div>
+      ${s.speakers.filter(x=>x[0]||x[1]).length?`<div class="csec"><h4>Speakers as recorded</h4><ul class="spk">${s.speakers.filter(x=>x[0]||x[1]).map(x=>`<li><b>${x[0]||"Name not recorded"}</b><i>${x[1]||""}</i></li>`).join("")}</ul></div>`:""}
+      <div class="csec"><h4>Notes from the room</h4><ul class="notes">${s.notes.map(x=>`<li><span>${x}</span></li>`).join("")}</ul></div>
+      <div class="csec"><h4>Themes it informs</h4><div class="lnk">${s.tags.map(t=>`<button type="button" data-nar="${t}">${narById[t].num} &mdash; ${narById[t].title}</button>`).join("")}</div></div>
+    </div>
+  </details>`;
+}
+function renderArchive(){
+  const q=query.trim().toLowerCase();
+  const list=SESSIONS.filter(s=>{
+    if(filter!=="all"&&!s.tags.includes(filter)) return false;
+    if(!q) return true;
+    return (s.title+" "+s.short+" "+s.notes.join(" ")+" "+s.desc.join(" ")+" "+s.speakers.map(x=>x.join(" ")).join(" ")).toLowerCase().includes(q);
+  });
+  document.getElementById("cards").innerHTML=list.length?list.map(cardHTML).join("")
+    :`<p style="color:var(--ink-2);grid-column:1/-1">No session matches that. Try a speaker name, a country, or a word from the notes.</p>`;
+  document.getElementById("count").textContent=list.length+" of "+SESSIONS.length;
+}
+document.getElementById("filters").innerHTML=
+  `<button type="button" data-f="all" aria-pressed="true">All 13</button>`+
+  NARRATIVES.map(n=>`<button type="button" data-f="${n.id}" aria-pressed="false">${n.map}</button>`).join("");
+document.getElementById("filters").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-f]"); if(!b)return;
+  filter=b.dataset.f;
+  [...e.currentTarget.querySelectorAll("button")].forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+  renderArchive();
+});
+document.getElementById("q").addEventListener("input",e=>{query=e.target.value;renderArchive()});
+renderArchive();
+
+function openSession(id){
+  closeTheme();
+  filter="all"; query="";
+  const qi=document.getElementById("q"); if(qi)qi.value="";
+  [...document.querySelectorAll("#filters button")].forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.f==="all")));
+  renderArchive();
+  const d=document.getElementById(id); if(!d)return;
+  document.querySelectorAll("details.card[open]").forEach(o=>{if(o!==d)o.open=false});
+  d.open=true;
+  requestAnimationFrame(()=>d.scrollIntoView({behavior:"smooth",block:"center"}));
+}
+document.addEventListener("click",e=>{
+  const s=e.target.closest("[data-ses]"); if(s){openSession(s.dataset.ses);return}
+  const n=e.target.closest("[data-nar]"); if(n){openTheme(n.dataset.nar)}
+});
+
+/* ---------- voices + status ---------- */
+document.getElementById("vgrid").innerHTML=VOICES.map(v=>`
+ <div class="v"><div class="vn">${v.n}</div><div class="vr">${v.r}</div>
+ <div class="vq">&ldquo;${v.q}&rdquo;</div><div class="vs">${v.s}</div></div>`).join("");
+
+
+/* ---------- map ---------- */
+const NS="http://www.w3.org/2000/svg";
+const svg=document.getElementById("map"), ro=document.getElementById("readout");
+const DEF={k:"Five themes, thirteen sessions",t:"Sessions that shared no panel shared a problem.",
+ d:"A diabetes market panel and a pandemic financing panel were having the same argument about the last mile. A fishbowl on traditional medicine and one on drug policy were having the same argument about whose knowledge counts.",
+ h:"Hover or tab to a node to see what it connects to. Click to open it."};
+function setRO(o){ro.innerHTML=`<div class="rk">${o.k}</div><div class="rt">${o.t}</div><div class="rd">${o.d}</div><div class="rh">${o.h}</div>`}
+setRO(DEF);
+function mk(t,a,x){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;return e}
+const ORDER=[]; NARRATIVES.forEach(n=>SESSIONS.filter(s=>s.primary===n.id).forEach(s=>ORDER.push(s)));
+
+function buildMap(){
+  const wrap=document.getElementById("mapwrap");
+  const CW=Math.max(280,wrap.clientWidth||900);
+  const narrow=CW<720;
+  let W,H,cx,cy,sesFS,narFS;
+  const pos={}, anch={}, dx={};
+  if(!narrow){
+    W=Math.min(1040,CW); H=Math.round(Math.max(520,Math.min(640,W*0.60)));
+    cx=W/2; cy=H/2; sesFS=12.5; narFS=13.5;
+    const oRx=cx-132, oRy=cy-36, ang={}, N=ORDER.length;
+    ORDER.forEach((s,i)=>{
+      const a=-Math.PI/2+i*2*Math.PI/N; ang[s.id]=a;
+      const right=Math.cos(a)>=-0.08;
+      pos[s.id]={x:cx+oRx*Math.cos(a),y:cy+oRy*Math.sin(a)};
+      anch[s.id]=right?"start":"end"; dx[s.id]=right?12:-12;
+    });
+    NARRATIVES.forEach(n=>{
+      const as=SESSIONS.filter(s=>s.primary===n.id).map(s=>ang[s.id]);
+      const mx=as.reduce((t,a)=>t+Math.cos(a),0)/as.length, my=as.reduce((t,a)=>t+Math.sin(a),0)/as.length;
+      const a=Math.atan2(my,mx);
+      pos[n.id]={x:cx+oRx*0.47*Math.cos(a),y:cy+oRy*0.49*Math.sin(a),w:n.map.length*8.6+56};
+    });
+  } else {
+    W=CW; sesFS=CW<380?10.5:11.5; narFS=CW<380?11:12;
+    const pillW={}; NARRATIVES.forEach(n=>pillW[n.id]=n.map.length*narFS*0.62+40);
+    const maxPill=Math.max(...NARRATIVES.map(n=>pillW[n.id]));
+    const maxLab=Math.max(...ORDER.map(s=>lab(s).length))*sesFS*0.55+16;
+    const rowH=CW<380?31:35;
+    H=ORDER.length*rowH+26;
+    const dotX=Math.max(maxPill+30, W-maxLab-8);
+    const top=16, span=H-32;
+    ORDER.forEach((s,i)=>{
+      pos[s.id]={x:dotX,y:top+span*i/(ORDER.length-1)};
+      anch[s.id]="start"; dx[s.id]=10;
+    });
+    NARRATIVES.forEach(n=>{
+      const ys=SESSIONS.filter(s=>s.primary===n.id).map(s=>pos[s.id].y);
+      pos[n.id]={x:pillW[n.id]/2+2,y:ys.reduce((a,b)=>a+b,0)/ys.length,w:pillW[n.id]};
+    });
+    cx=W/2; cy=H/2;
+  }
+
+  svg.setAttribute("viewBox","0 0 "+W+" "+H); svg.setAttribute("width",W); svg.setAttribute("height",H);
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  if(!narrow){
+    svg.appendChild(mk("text",{x:cx,y:cy-3,"text-anchor":"middle",class:"ctr"},"WHS BERLIN"));
+    svg.appendChild(mk("text",{x:cx,y:cy+13,"text-anchor":"middle",class:"ctr"},"2026"));
+  }
+  const gE=mk("g",{}); svg.appendChild(gE); const edges=[];
+  NARRATIVES.forEach(n=>n.sessions.forEach(sid=>{
+    const a=pos[n.id], b=pos[sid]; let d;
+    if(narrow){
+      const ax=a.x+a.w/2, ay=a.y, bx=b.x, by=b.y, h=(bx-ax)*0.5;
+      d="M"+ax.toFixed(1)+" "+ay.toFixed(1)+" C"+(ax+h).toFixed(1)+" "+ay.toFixed(1)+" "+(bx-h).toFixed(1)+" "+by.toFixed(1)+" "+bx.toFixed(1)+" "+by.toFixed(1);
+    } else {
+      const mxp=(a.x+b.x)/2, myp=(a.y+b.y)/2;
+      d="M"+a.x.toFixed(1)+" "+a.y.toFixed(1)+" Q"+(mxp+(cx-mxp)*0.16).toFixed(1)+" "+(myp+(cy-myp)*0.16).toFixed(1)+" "+b.x.toFixed(1)+" "+b.y.toFixed(1);
+    }
+    const p=mk("path",{d:d,class:"edge"});
+    p.dataset.nar=n.id; p.dataset.ses=sid; gE.appendChild(p); edges.push(p);
+  }));
+  const gN=mk("g",{}); svg.appendChild(gN);
+  ORDER.forEach(s=>{
+    const p=pos[s.id];
+    const g=mk("g",{class:"node ses",tabindex:"0",role:"button","aria-label":"Session: "+s.title});
+    g.dataset.id=s.id; g.dataset.kind="ses";
+    g.appendChild(mk("circle",{cx:p.x,cy:p.y,r:narrow?4.5:5}));
+    g.appendChild(mk("text",{x:p.x+dx[s.id],y:p.y+4,"text-anchor":anch[s.id],"font-size":sesFS},lab(s)));
+    gN.appendChild(g);
+  });
+  NARRATIVES.forEach(n=>{
+    const p=pos[n.id], h=narrow?27:32;
+    const g=mk("g",{class:"node nar",tabindex:"0",role:"button","aria-label":"Theme "+n.num+": "+n.title});
+    g.dataset.id=n.id; g.dataset.kind="nar";
+    g.appendChild(mk("rect",{x:p.x-p.w/2,y:p.y-h/2,width:p.w,height:h,rx:h/2}));
+    g.appendChild(mk("text",{x:p.x-p.w/2+(narrow?12:15),y:p.y+3.5,class:"num","font-size":narrow?9.5:10.5},n.num));
+    g.appendChild(mk("text",{x:p.x+(narrow?8:10),y:p.y+4.5,"text-anchor":"middle","font-size":narFS},n.map));
+    gN.appendChild(g);
+  });
+  if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    requestAnimationFrame(()=>edges.forEach((p,i)=>{p.style.setProperty("--len",p.getTotalLength());p.style.animationDelay=(i*12)+"ms"}));
+  }
+}
+function clearMap(){svg.querySelectorAll(".node,.edge").forEach(e=>e.classList.remove("on","dim"));setRO(DEF)}
+function activate(id,kind){
+  const eds=[...svg.querySelectorAll(".edge")], rel=new Set([id]);
+  eds.forEach(e=>{
+    const hit=kind==="nar"?e.dataset.nar===id:e.dataset.ses===id;
+    e.classList.toggle("on",hit); e.classList.toggle("dim",!hit);
+    if(hit){rel.add(e.dataset.nar);rel.add(e.dataset.ses)}
+  });
+  svg.querySelectorAll(".node").forEach(n=>{
+    n.classList.toggle("on",n.dataset.id===id);
+    n.classList.toggle("dim",!rel.has(n.dataset.id));
+  });
+  if(kind==="nar"){const n=narById[id];
+    setRO({k:"Theme "+n.num+" &middot; "+n.rail,t:n.title,d:n.lede.split(". ")[0]+".",
+      h:"Drawn from "+n.sessions.map(s=>byId[s].short).join(", ")+" &mdash; click to open the theme"});
+  }else{const s=byId[id];
+    setRO({k:"Session "+s.n,t:s.title,d:s.desc[0].split(". ").slice(0,2).join(". ")+".",
+      h:"Informs "+s.tags.map(t=>narById[t].map).join(", ")+" &mdash; click for the full notes"});
+  }
+}
+svg.addEventListener("pointerover",e=>{const g=e.target.closest(".node");if(g)activate(g.dataset.id,g.dataset.kind)});
+svg.addEventListener("pointerleave",clearMap);
+svg.addEventListener("focusin",e=>{const g=e.target.closest(".node");if(g)activate(g.dataset.id,g.dataset.kind)});
+svg.addEventListener("focusout",e=>{if(!svg.contains(e.relatedTarget))clearMap()});
+function fire(g){g.dataset.kind==="nar"?openTheme(g.dataset.id):openSession(g.dataset.id)}
+svg.addEventListener("click",e=>{const g=e.target.closest(".node");if(g)fire(g)});
+svg.addEventListener("keydown",e=>{
+  if(e.key!=="Enter"&&e.key!==" ")return;
+  const g=e.target.closest(".node"); if(!g)return; e.preventDefault(); fire(g);
+});
+buildMap();
+let rt,lastW=0;
+window.addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{const w=document.getElementById("mapwrap").clientWidth;if(w===lastW)return;lastW=w;buildMap();setRO(DEF)},180)});
+</script>
