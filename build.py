@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Wrap index.html (the Claude artifact source) into a standalone page in site/.
+"""Wrap index.html (the Claude artifact source) into a standalone page in docs/.
 
 The artifact platform supplies the <!doctype>, <head> and a small reset at
 publish time, so index.html deliberately has none of them. GitHub Pages serves
@@ -36,7 +36,7 @@ out = (
     + RESET + head.strip() + "\n</head>\n<body>\n"
     + body.strip() + "\n</body>\n</html>\n"
 )
-(ROOT / "site").mkdir(exist_ok=True)
-(ROOT / "site" / "index.html").write_text(out)
-(ROOT / "site" / "robots.txt").write_text("User-agent: *\nDisallow: /\n")
-print(f"built site/index.html  ({len(out):,} bytes)")
+(ROOT / "docs").mkdir(exist_ok=True)
+(ROOT / "docs" / "index.html").write_text(out)
+(ROOT / "docs" / "robots.txt").write_text("User-agent: *\nDisallow: /\n")
+print(f"built docs/index.html  ({len(out):,} bytes)")
