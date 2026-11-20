@@ -182,7 +182,6 @@ details.card h3{font-size:1.08rem;letter-spacing:-0.02em;max-width:36ch}
 @media(min-width:800px){.vgrid{grid-template-columns:repeat(3,1fr);gap:1.8rem}}
 .v{display:grid;gap:.55rem;min-width:0;border-top:1px solid var(--ink);padding-top:.9rem}
 .v .vn{font-size:1.15rem;font-weight:600;letter-spacing:-0.02em}
-.v .vr{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
 .v .vq{font-size:1rem;line-height:1.55;color:var(--ink)}
 .v .vs{font-size:.88rem;color:var(--ink-2)}
 .changed{display:grid;gap:1rem;margin-top:2rem;padding-top:1.6rem;border-top:1px solid var(--line)}
@@ -263,8 +262,7 @@ footer{border-top:1px solid var(--line);background:var(--bg-2)}
 <section class="band" id="voices">
   <div class="wrap voices">
     <div class="lab">Three delegates</div>
-    <h2 style="font-size:clamp(1.5rem,3vw,2.05rem);margin-top:.5rem">We did not take the same summit home</h2>
-    <p style="color:var(--ink-2);max-width:58ch;margin-top:.7rem;font-size:.95rem">We attended overlapping sessions and left with different arguments. Rather than blend them into one voice, the reflections stay separate &mdash; including where they disagree about what the evidence supports.</p>
+    <h2 style="font-size:clamp(1.5rem,3vw,2.05rem);margin-top:.5rem">Our takeaways</h2>
     <div class="vgrid" id="vgrid"></div>
     <div class="changed">
       <div class="lab" style="color:var(--accent)">What changed our minds</div>
@@ -666,7 +664,7 @@ const VOICES = [
  {n:"Abby", r:"Written themes 1–5", q:"Bringing people into the workforce is only part of the challenge. The job itself has to be one they can sustain.",
   s:"Connected the workforce and AI session to her summer work on health care recruitment and retention in Bentonville, and pushed the group's thinking on what technology does to the people expected to use it."},
  {n:"Suhan", r:"12-page notebook · transcribed 11 Oct 2026", q:"Investment is good, but is it delivering what it promised?",
-  s:"Covered the sessions nobody else sat in — women's health capital, One Health, climate, health sovereignty, NCDs and capital markets — in a handwritten notebook that supplies most of the financing and market detail on this site."}
+  s:"Sat in on the financing and market sessions — women's health capital, One Health, climate, health sovereignty, NCDs and capital markets — most of them well outside his own background. Came to them from digital health, so what is here is read through that frame rather than from expertise in the subject matter."}
 ];
 
 const MAPLAB={"s-women":"Women's health","s-climate":"Lower-carbon care","s-pandemic1":"Pandemic financing","s-sovereignty":"Health sovereignty","s-tradmed":"Traditional medicine"};
@@ -814,7 +812,7 @@ document.addEventListener("click",e=>{
 
 /* ---------- voices + status ---------- */
 document.getElementById("vgrid").innerHTML=VOICES.map(v=>`
- <div class="v"><div class="vn">${v.n}</div><div class="vr">${v.r}</div>
+ <div class="v"><div class="vn">${v.n}</div>
  <div class="vq">&ldquo;${v.q}&rdquo;</div><div class="vs">${v.s}</div></div>`).join("");
 
 
